@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
             adapter = viewModel.getTimerAdapter()
         }
 
+
         binding.addNewTimerButton.setOnClickListener {
             val time = binding.startTime.text.toString()
             viewModel.addNewTimer(time)

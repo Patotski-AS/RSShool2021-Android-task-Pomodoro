@@ -49,12 +49,12 @@
             app:custom_color="?attr/colorPrimaryDark"
             app:custom_style="fill"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/start_timer_button"
+            app:layout_constraintEnd_toStartOf="@+id/start_stop_timer_button"
             app:layout_constraintStart_toEndOf="@+id/stopwatch_timer"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/start_timer_button"
+            android:id="@+id/start_stop_timer_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
@@ -76,7 +76,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/start_timer_button"
+            app:layout_constraintStart_toEndOf="@+id/start_stop_timer_button"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

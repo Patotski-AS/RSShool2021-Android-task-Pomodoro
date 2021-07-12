@@ -1,5 +1,6 @@
 package com.example.android.pomodoro.timer
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -8,7 +9,9 @@ import com.example.android.pomodoro.databinding.TimerItemBinding
 
 class TimerAdapter(
     private val listener: TimerListener
-) : ListAdapter<Timer, TimerViewHolder>(itemComparator) {
+)
+    : ListAdapter<Timer, TimerViewHolder>(itemComparator)
+{
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TimerViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -17,6 +20,7 @@ class TimerAdapter(
     }
 
     override fun onBindViewHolder(holder: TimerViewHolder, position: Int) {
+        Log.i("MyLog" , " onBindViewHolder $position")
         holder.bind(getItem(position))
     }
 
@@ -32,6 +36,8 @@ class TimerAdapter(
                 return oldItem.currentMs == newItem.currentMs &&
                         oldItem.isStarted == newItem.isStarted
             }
+
+            override fun getChangePayload(oldItem: Timer, newItem: Timer) = Any()
         }
     }
 }
