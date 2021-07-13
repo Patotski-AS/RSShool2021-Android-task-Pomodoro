@@ -10,8 +10,8 @@ import com.example.android.pomodoro.timer.TimerListener
 class MainActivityViewModel : ViewModel(), TimerListener {
     private val timerAdapter = TimerAdapter(this)
     private val timers = mutableListOf<Timer>()
-    private var isStarted = true
     private var nextId = 0
+    private var isStarted = true
     private var startTime = 0L
     private var currentTime = 0L
 
@@ -24,13 +24,6 @@ class MainActivityViewModel : ViewModel(), TimerListener {
         return timerAdapter
     }
 
-    private fun setTime(time: Int) {
-        currentTime = time * 1000L
-    }
-
-    fun getTimers(): MutableList<Timer> {
-        return timers
-    }
 
     fun addNewTimer(startTime: String) {
         if (startTime != "") {
@@ -50,7 +43,7 @@ class MainActivityViewModel : ViewModel(), TimerListener {
 
     override fun stop(id: Int, currentMs: Long) {
         timers.forEach {
-            if (it.isStarted) {
+            if (it.id == id) {
                 currentTime = it.currentMs
                 it.isStarted = false
             }

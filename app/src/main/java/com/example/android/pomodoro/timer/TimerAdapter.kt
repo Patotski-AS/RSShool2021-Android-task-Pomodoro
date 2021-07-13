@@ -24,7 +24,6 @@ class TimerAdapter(
         holder.bind(getItem(position))
     }
 
-
     private companion object {
         private val itemComparator = object : DiffUtil.ItemCallback<Timer>() {
 
