@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import androidx.annotation.AttrRes
 import com.example.android.pomodoro.R
@@ -42,19 +43,20 @@ class CustomView @JvmOverloads constructor(
         paint2.style = Paint.Style.STROKE
         paint2.strokeWidth = 3F
 
-
     }
 
     override fun onDraw(canvas: Canvas) {
         if (periodMs == 0L || currentMs == 0L) return
-        val sweepAngle = (((currentMs % periodMs).toFloat() / periodMs) * 360)
+
+        val sweepAngle = 360-  currentMs.toFloat() / periodMs * 360
         val y = (height/2).toFloat()
         val x = (width/2).toFloat()
 
-        canvas.drawArc(0f, 0f, width.toFloat(), height.toFloat(), 0f, sweepAngle, true, paint)
         canvas.drawOval(0f, 0f, width.toFloat(), height.toFloat(), paint2)
+        canvas.drawArc(0f, 0f, width.toFloat(), height.toFloat(), -90f, sweepAngle, true, paint)
         canvas.drawLine(0f,y,width.toFloat(),y,paint2)
         canvas.drawLine(x,0f,x,height.toFloat(),paint2)
+
     }
 
     fun setCurrent(current: Long) {
@@ -69,5 +71,6 @@ class CustomView @JvmOverloads constructor(
 
     private companion object {
         private const val FILL = 0
+        private const val STROKE = 1
     }
 }

@@ -19,7 +19,6 @@ class TimerViewHolder(
     RecyclerView.ViewHolder(binding.root) {
 
     private var countDownTimer: CountDownTimer? = null
-    private var workId = 0
 
     fun bind(timer: Timer) {
         binding.stopwatchTimer.text = longTimeToString(timer.currentMs)
@@ -30,7 +29,7 @@ class TimerViewHolder(
     }
 
     private fun startTimer(timer: Timer) {
-        binding.customTimer.setPeriod(1000)
+        binding.customTimer.setPeriod(timer.currentMs)
 
         countDownTimer?.cancel()
         countDownTimer = getCountDownTimer(timer)
@@ -40,7 +39,6 @@ class TimerViewHolder(
         (binding.blinkingIndicator.background as? AnimationDrawable)?.start()
 
     }
-
 
     private fun stopTimer() {
         countDownTimer?.cancel()
@@ -73,7 +71,6 @@ class TimerViewHolder(
 
     private fun updateCustomTimer(time: Long) {
         CoroutineScope(Dispatchers.Main).launch {
-            Log.i("scope","$time")
             binding.customTimer.setCurrent(time)
             delay(INTERVAL)
         }
@@ -98,7 +95,7 @@ class TimerViewHolder(
 
     private companion object {
         private const val START_TIME = "00:00:00"
-        private const val INTERVAL = 10L
+        private const val INTERVAL = 500L
         private const val START = "START"
         private const val STOP = "STOP"
     }
