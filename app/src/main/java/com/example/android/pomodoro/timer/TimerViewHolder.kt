@@ -43,7 +43,6 @@ class TimerViewHolder(
 
     }
 
-
     private fun getCountDownTimer(timer: Timer): CountDownTimer {
 
         return object : CountDownTimer(timer.currentMs, INTERVAL) {
@@ -74,6 +73,10 @@ class TimerViewHolder(
                 startTimer(timer)
                 binding.startStopTimerButton.text = STOP
             }
+        }
+
+        binding.deleteButton.setOnClickListener {
+            listener.delete(timer.id)
         }
     }
 

@@ -56,7 +56,8 @@ class MainActivityViewModel : ViewModel(), TimerListener {
     }
 
     override fun delete(id: Int) {
-        TODO("delete timer")
+        timers.remove(timers.find{ it.id==id })
+        timerAdapter.submitList(timers.toList())
     }
 
     private companion object {
