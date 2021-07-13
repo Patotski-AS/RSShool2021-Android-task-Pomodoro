@@ -7,6 +7,10 @@ import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android.pomodoro.databinding.TimerItemBinding
 import com.example.android.pomodoro.longTimeToString
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class TimerViewHolder(
     private val binding: TimerItemBinding,
@@ -21,19 +25,22 @@ class TimerViewHolder(
         binding.stopwatchTimer.text = longTimeToString(timer.currentMs)
         if (timer.isStarted) {
             startTimer(timer)
-        }else stopTimer()
+        } else stopTimer()
         initButtonsListeners(timer)
     }
 
-
     private fun startTimer(timer: Timer) {
+        binding.customTimer.setPeriod(1000)
+
         countDownTimer?.cancel()
         countDownTimer = getCountDownTimer(timer)
         countDownTimer?.start()
 
         binding.blinkingIndicator.isInvisible = false
         (binding.blinkingIndicator.background as? AnimationDrawable)?.start()
+
     }
+
 
     private fun stopTimer() {
         countDownTimer?.cancel()
@@ -51,6 +58,7 @@ class TimerViewHolder(
                 if (timer.isStarted) {
                     timer.currentMs -= INTERVAL
                     binding.stopwatchTimer.text = longTimeToString(timer.currentMs)
+                    updateCustomTimer(timer.currentMs)
                 } else {
                     binding.startStopTimerButton.text = START
                     stopTimer()
@@ -60,6 +68,14 @@ class TimerViewHolder(
             override fun onFinish() {
                 binding.stopwatchTimer.text = START_TIME
             }
+        }
+    }
+
+    private fun updateCustomTimer(time: Long) {
+        CoroutineScope(Dispatchers.Main).launch {
+            Log.i("scope","$time")
+            binding.customTimer.setCurrent(time)
+            delay(INTERVAL)
         }
     }
 
