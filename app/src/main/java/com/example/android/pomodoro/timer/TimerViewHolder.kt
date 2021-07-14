@@ -25,11 +25,16 @@ class TimerViewHolder(
         if (timer.isStarted) {
             startTimer(timer)
         } else stopTimer()
+
+        if (timer.currentMs != 0L) {
+            binding.customTimer.setPeriod(timer.startMs)
+            updateCustomTimer(timer.currentMs)
+        } else finish()
+
         initButtonsListeners(timer)
     }
 
     private fun startTimer(timer: Timer) {
-        binding.customTimer.setPeriod(timer.currentMs)
 
         countDownTimer?.cancel()
         countDownTimer = getCountDownTimer(timer)
@@ -37,20 +42,20 @@ class TimerViewHolder(
 
         binding.blinkingIndicator.isInvisible = false
         (binding.blinkingIndicator.background as? AnimationDrawable)?.start()
-
     }
 
     private fun stopTimer() {
+        binding.startStopTimerButton.text = START
+
         countDownTimer?.cancel()
 
         binding.blinkingIndicator.isInvisible = true
         (binding.blinkingIndicator.background as? AnimationDrawable)?.stop()
-
     }
 
     private fun getCountDownTimer(timer: Timer): CountDownTimer {
 
-        return object : CountDownTimer(timer.currentMs, INTERVAL) {
+        return object : CountDownTimer(timer.startMs, INTERVAL) {
 
             override fun onTick(millisUntilFinished: Long) {
                 if (timer.isStarted) {
@@ -58,15 +63,21 @@ class TimerViewHolder(
                     binding.stopwatchTimer.text = longTimeToString(timer.currentMs)
                     updateCustomTimer(timer.currentMs)
                 } else {
-                    binding.startStopTimerButton.text = START
                     stopTimer()
                 }
             }
 
             override fun onFinish() {
-                binding.stopwatchTimer.text = START_TIME
+                finish()
             }
         }
+    }
+
+    private fun finish() {
+        binding.startStopTimerButton.isInvisible = true
+        binding.blinkingIndicator.isInvisible = true
+        (binding.blinkingIndicator.background as? AnimationDrawable)?.stop()
+        binding.stopwatchTimer.text = START_TIME
     }
 
     private fun updateCustomTimer(time: Long) {
@@ -95,7 +106,7 @@ class TimerViewHolder(
 
     private companion object {
         private const val START_TIME = "00:00:00"
-        private const val INTERVAL = 500L
+        private const val INTERVAL = 1000L
         private const val START = "START"
         private const val STOP = "STOP"
     }

@@ -2,6 +2,7 @@ package com.example.android.pomodoro.main
 
 import android.content.ClipData
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.android.pomodoro.timer.Timer
 import com.example.android.pomodoro.timer.TimerAdapter
@@ -9,6 +10,7 @@ import com.example.android.pomodoro.timer.TimerListener
 
 class MainActivityViewModel : ViewModel(), TimerListener {
     private val timerAdapter = TimerAdapter(this)
+
     private val timers = mutableListOf<Timer>()
     private var nextId = 0
     private var isStarted = true
@@ -23,7 +25,6 @@ class MainActivityViewModel : ViewModel(), TimerListener {
     fun getTimerAdapter(): TimerAdapter {
         return timerAdapter
     }
-
 
     fun addNewTimer(startTime: String) {
         if (startTime != "") {
@@ -40,7 +41,6 @@ class MainActivityViewModel : ViewModel(), TimerListener {
         timerAdapter.submitList(timers.toList())
     }
 
-
     override fun stop(id: Int, currentMs: Long) {
         timers.forEach {
             if (it.id == id) {
@@ -49,10 +49,6 @@ class MainActivityViewModel : ViewModel(), TimerListener {
             }
         }
         timerAdapter.submitList(timers.toList())
-    }
-
-    override fun reset(id: Int) {
-        TODO("reset timer")
     }
 
     override fun delete(id: Int) {
