@@ -1,7 +1,8 @@
 package com.example.android.pomodoro.timer
 
 interface TimerListener {
-    fun start(id: Int)
+    fun start(timer: Timer)
     fun stop(id: Int, currentMs: Long)
     fun delete(id: Int)
+    fun update(timer: Timer)
 }

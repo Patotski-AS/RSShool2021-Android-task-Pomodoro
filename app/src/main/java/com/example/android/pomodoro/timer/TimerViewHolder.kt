@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.sql.Time
 
 class TimerViewHolder(
     private val binding: TimerItemBinding,
@@ -18,9 +19,10 @@ class TimerViewHolder(
 ) :
     RecyclerView.ViewHolder(binding.root) {
 
-    private var countDownTimer: CountDownTimer? = null
+//    private var countDownTimer: CountDownTimer? = null
 
     fun bind(timer: Timer) {
+        Log.i("MyLog","bind $timer")
         binding.stopwatchTimer.text = longTimeToString(timer.currentMs)
         if (timer.isStarted) {
             startTimer(timer)
@@ -35,11 +37,10 @@ class TimerViewHolder(
     }
 
     private fun startTimer(timer: Timer) {
-
-        countDownTimer?.cancel()
-        countDownTimer = getCountDownTimer(timer)
-        countDownTimer?.start()
-
+//        countDownTimer?.cancel()
+//        countDownTimer = getCountDownTimer(timer)
+//        countDownTimer?.start()
+        listener.update(timer)
         binding.blinkingIndicator.isInvisible = false
         (binding.blinkingIndicator.background as? AnimationDrawable)?.start()
     }
@@ -47,31 +48,12 @@ class TimerViewHolder(
     private fun stopTimer() {
         binding.startStopTimerButton.text = START
 
-        countDownTimer?.cancel()
+//        countDownTimer?.cancel()
 
         binding.blinkingIndicator.isInvisible = true
         (binding.blinkingIndicator.background as? AnimationDrawable)?.stop()
     }
 
-    private fun getCountDownTimer(timer: Timer): CountDownTimer {
-
-        return object : CountDownTimer(timer.startMs, INTERVAL) {
-
-            override fun onTick(millisUntilFinished: Long) {
-                if (timer.isStarted) {
-                    timer.currentMs -= INTERVAL
-                    binding.stopwatchTimer.text = longTimeToString(timer.currentMs)
-                    updateCustomTimer(timer.currentMs)
-                } else {
-                    stopTimer()
-                }
-            }
-
-            override fun onFinish() {
-                finish()
-            }
-        }
-    }
 
     private fun finish() {
         binding.startStopTimerButton.isInvisible = true
@@ -93,7 +75,7 @@ class TimerViewHolder(
                 binding.startStopTimerButton.text = START
                 listener.stop(timer.id, timer.currentMs)
             } else {
-                listener.start(timer.id)
+                listener.start(timer)
                 startTimer(timer)
                 binding.startStopTimerButton.text = STOP
             }
@@ -103,6 +85,27 @@ class TimerViewHolder(
             listener.delete(timer.id)
         }
     }
+
+//    private fun getCountDownTimer(timer: Timer): CountDownTimer {
+//
+//        return object : CountDownTimer(timer.startMs, INTERVAL) {
+//
+//            override fun onTick(millisUntilFinished: Long) {
+//                if (timer.isStarted) {
+//                    timer.currentMs -= INTERVAL
+//                    binding.stopwatchTimer.text = longTimeToString(timer.currentMs)
+//                    updateCustomTimer(timer.currentMs)
+//                } else {
+//                    stopTimer()
+//                }
+//            }
+//
+//            override fun onFinish() {
+//                finish()
+//            }
+//        }
+//    }
+
 
     private companion object {
         private const val START_TIME = "00:00:00"

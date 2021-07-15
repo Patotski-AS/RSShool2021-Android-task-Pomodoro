@@ -16,6 +16,7 @@ class TimerAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TimerViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val binding = TimerItemBinding.inflate(layoutInflater, parent, false)
+        Log.i("MyLog" , " onCreateViewHolder")
         return TimerViewHolder(binding,listener)
     }
 
