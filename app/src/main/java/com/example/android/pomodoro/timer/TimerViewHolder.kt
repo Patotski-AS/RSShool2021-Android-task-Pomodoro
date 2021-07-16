@@ -68,6 +68,7 @@ class TimerViewHolder(
             }
 
             override fun onFinish() {
+                countDownTimer?.cancel()
                 finish()
             }
         }
