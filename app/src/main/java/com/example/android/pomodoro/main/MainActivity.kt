@@ -2,9 +2,6 @@ package com.example.android.pomodoro.main
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.android.pomodoro.databinding.ActivityMainBinding
@@ -33,7 +30,6 @@ class MainActivity : AppCompatActivity(),TimerListener {
 
         viewModel.timersLiveData.observe({ lifecycle }, {
             it?.let { timerAdapter.submitList(it.toList())
-//                Log.i("MyLog", "viewModel.timers.observe $it")
             }
         })
 
@@ -53,10 +49,6 @@ class MainActivity : AppCompatActivity(),TimerListener {
 
     override fun delete(id: Int) {
         viewModel.delete(id)
-    }
-
-    override fun update(timer: Timer) {
-        TODO("Not yet implemented")
     }
 
     override fun getCurrentMs(id: Int): Long? {

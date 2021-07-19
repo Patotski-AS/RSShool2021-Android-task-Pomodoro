@@ -2,11 +2,9 @@ package com.example.android.pomodoro.main
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.pomodoro.timer.Timer
-import com.example.android.pomodoro.timer.TimerAdapter
 import com.example.android.pomodoro.timer.TimerListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,10 +18,8 @@ class MainActivityViewModel : ViewModel(), TimerListener {
 
     private var nextId = 0
     private var currentTime = 0L
-    private var startTime = 0L
     private var finishTime = 0L
     private var job: Job? = null
-
 
     private fun <T> MutableLiveData<T>.notifyObserver() {
         this.value = this.value
@@ -42,22 +38,9 @@ class MainActivityViewModel : ViewModel(), TimerListener {
         timersLiveData.value = timers
     }
 
-
-    override fun update(timer: Timer) {
-        val index = timers.indexOf(timers.find { it.id == timer.id })
-        timers[index].isStarted = timer.isStarted
-        timers[index].currentMs = timer.startMs
-        Log.i(
-            "MyLog",
-            "update $timers index = $index, timer.isStarted= ${timer.isStarted} ,timer.startMs = ${timer.startMs}   "
-        )
-        timersLiveData.value = timers
-    }
-
     override fun getCurrentMs(id: Int): Long? {
         return currentTime
     }
-
 
     override fun start(timer: Timer) {
         timers.map { if (it.isStarted) it.isStarted = false }
@@ -84,39 +67,12 @@ class MainActivityViewModel : ViewModel(), TimerListener {
                 timers[index].currentMs = finishTime - System.currentTimeMillis()
                 if (timers[index].currentMs <=0L) job?.cancel()
                 timersLiveData.value = timers
-                Log.i("MyLog", "createCounter timers = $timers ")
                 delay(INTERVAL)
             }
         }
     }
 
-//
-//    override fun stop(id: Int, currentMs: Long) {
-//        timers.forEach {
-//            if (it.id == id) {
-//                currentTime = it.currentMs
-//                it.isStarted = false
-//            }
-//        }
-//        job?.cancel()
-//        val newList = timers.map { it }
-//        timerAdapter.submitList(newList)
-//    }
-//
-//
-//    override fun update(timer: Timer) {
-//        timers.map {
-//            if (it.id == timer.id) it.currentMs = timer.currentMs
-//        }
-////        val newList = timers.map { it }
-////        timerAdapter.submitList(newList)
-//        timerAdapter.notifyItemChanged(timerAdapter.currentList.indexOf(timer))
-//        Log.i("MyLog", "fun update $timers ")
-//    }
-
-
     private companion object {
-        private const val START_TIME = "00:00:00"
         private const val INTERVAL = 1000L
     }
 

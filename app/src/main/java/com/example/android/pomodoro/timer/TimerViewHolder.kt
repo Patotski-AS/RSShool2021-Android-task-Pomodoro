@@ -1,7 +1,6 @@
 package com.example.android.pomodoro.timer
 
 import android.graphics.drawable.AnimationDrawable
-import android.util.Log
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -17,12 +16,9 @@ class TimerViewHolder(
     private var job: Job? = null
 
     fun bind(timer: Timer) {
-
-        Log.i("MyLog", "bind $timer")
-
         binding.stopwatchTimer.text = longTimeToString(timer.currentMs)
 
-        if (timer.currentMs != 0L) {
+        if (timer.currentMs > 0L) {
             binding.customTimer.setPeriod(timer.startMs)
             updateCustomTimer(timer.currentMs)
         }
@@ -53,7 +49,7 @@ class TimerViewHolder(
 
     private fun updateCustomTimer(time: Long) {
         CoroutineScope(Dispatchers.Main).launch {
-            binding.customTimer.setCurrent(time)
+            binding.customTimer.setCurrent(time - INTERVAL)
             delay(INTERVAL)
         }
     }
@@ -86,10 +82,11 @@ class TimerViewHolder(
                         binding.blinkingIndicator.isInvisible = true
                         (binding.blinkingIndicator.background as? AnimationDrawable)?.stop()
                         binding.startStopTimerButton.isVisible = true
+//                        binding.constraintLayout.background = itemView.context.getDrawable(R.color.primaryColor_red_400)
                         job?.cancel()
                     }
-                    binding.stopwatchTimer.text = longTimeToString(currentTime)
                     updateCustomTimer(currentTime)
+                    binding.stopwatchTimer.text = longTimeToString(currentTime)
                 }
                 delay(INTERVAL)
             }

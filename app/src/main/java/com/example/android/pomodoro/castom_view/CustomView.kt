@@ -71,6 +71,5 @@ class CustomView @JvmOverloads constructor(
 
     private companion object {
         private const val FILL = 0
-        private const val STROKE = 1
     }
 }
