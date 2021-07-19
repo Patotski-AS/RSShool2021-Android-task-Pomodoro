@@ -31,9 +31,9 @@ class MainActivity : AppCompatActivity(),TimerListener {
             adapter = timerAdapter
         }
 
-        viewModel.timersLiveData.observe(this, {
-            it?.let { timerAdapter.submitList(it)
-                Log.i("MyLog", "viewModel.timers.observe $it")
+        viewModel.timersLiveData.observe({ lifecycle }, {
+            it?.let { timerAdapter.submitList(it.toList())
+//                Log.i("MyLog", "viewModel.timers.observe $it")
             }
         })
 
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity(),TimerListener {
     }
 
     override fun start(timer: Timer) {
-        TODO("Not yet implemented")
+       viewModel.start(timer)
     }
 
     override fun stop(id: Int, currentMs: Long) {
@@ -52,11 +52,15 @@ class MainActivity : AppCompatActivity(),TimerListener {
     }
 
     override fun delete(id: Int) {
-        TODO("Not yet implemented")
+        viewModel.delete(id)
     }
 
     override fun update(timer: Timer) {
         TODO("Not yet implemented")
+    }
+
+    override fun getCurrentMs(id: Int): Long? {
+      return viewModel.timers.find { it.id == id }?.currentMs
     }
 
 }

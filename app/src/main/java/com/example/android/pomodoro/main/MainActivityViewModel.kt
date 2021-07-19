@@ -4,18 +4,22 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.android.pomodoro.timer.Timer
 import com.example.android.pomodoro.timer.TimerAdapter
 import com.example.android.pomodoro.timer.TimerListener
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivityViewModel : ViewModel() {
 
-    private val timers = ArrayList<Timer>()
+    val timers = ArrayList<Timer>()
     val timersLiveData = MutableLiveData<MutableList<Timer>>()
 
     private var nextId = 0
-    private var currentTime = 0L
+    var currentTime = 0L
     private var startTime = 0L
     private var finishTime = 0L
     private var job: Job? = null
@@ -25,36 +29,50 @@ class MainActivityViewModel : ViewModel() {
         this.value = this.value
     }
 
-    private fun newTimer() {
-        timers.add(Timer(nextId++, currentTime, false))
-        timersLiveData.value = timers
-//        timersLiveData.value?.add(Timer(nextId++, currentTime, false))
-//        timersLiveData.notifyObserver()
-        Log.i("MyLog", "newTimer ${timersLiveData.value} ")
-    }
-
     fun addNewTimer(startTime: String) {
         if (startTime != "") {
             currentTime = startTime.toLong() * 1000 * 60
-            newTimer()
+            timers.add(Timer(nextId++, currentTime, false))
+            timersLiveData.value = timers
         }
     }
 
-    fun update(list: MutableList<Timer>, timer: Timer): MutableList<Timer> {
-        list.add(timer)
-        return list
+    fun delete(id: Int) {
+        timers.remove(timers.find { it.id == id })
+        timersLiveData.value = timers
     }
 
-//
-//    override fun start(timer: Timer) {
-//        timers.map {
-//            if (it.isStarted) stop(it.id, it.currentMs)
-//            if (it.id == timer.id) it.isStarted = true
-//        }
-//        createCounter(timer)
-//        val newList = timers.map { it }
-//        timerAdapter.submitList(newList)
-//    }
+
+    private fun update(timer: Timer) {
+        val index = timers.indexOf(timers.find { it.id == timer.id })
+        timers[index].isStarted = timer.isStarted
+        timers[index].currentMs = timer.startMs
+        Log.i("MyLog", "update $timers index = $index, timer.isStarted= ${timer.isStarted} ,timer.startMs = ${timer.startMs}   ")
+        timersLiveData.value = timers
+    }
+
+
+    fun start(timer: Timer) {
+        timers[timers.indexOf(timers.find { it.id == timer.id })].apply {
+            isStarted = true
+        }
+        finishTime = System.currentTimeMillis() + timer.currentMs
+        createCounter(timer)
+    }
+
+    private fun createCounter(timer: Timer) {
+        val index = timers.indexOf(timers.find { it.id == timer.id })
+
+        job = viewModelScope.launch(Dispatchers.Main) {
+            while (timer.isStarted) {
+                currentTime = finishTime - System.currentTimeMillis()
+                update(updateTimer)
+                Log.i("MyLog", "createCounter ${timersLiveData.value} , currentTime = $currentTime,  updateTimer = $updateTimer   ")
+                delay(INTERVAL)
+            }
+        }
+    }
+
 //
 //    override fun stop(id: Int, currentMs: Long) {
 //        timers.forEach {
@@ -68,10 +86,6 @@ class MainActivityViewModel : ViewModel() {
 //        timerAdapter.submitList(newList)
 //    }
 //
-//    override fun delete(id: Int) {
-//        timers.remove(timers.find { it.id == id })
-//        timerAdapter.submitList(timers.toList())
-//    }
 //
 //    override fun update(timer: Timer) {
 //        timers.map {
@@ -84,24 +98,6 @@ class MainActivityViewModel : ViewModel() {
 //    }
 
 
-//    private fun createCounter(timer: Timer) {
-//        finishTime = System.currentTimeMillis() + timer.currentMs
-//
-//        job = viewModelScope.launch(Dispatchers.Main) {
-//            while (timer.isStarted) {
-//               timer.currentMs = finishTime - System.currentTimeMillis()
-//                update(timer)
-//                delay(INTERVAL)
-//            }
-//        }
-//    }
-
-
-//    tim.observe(viewLifecycleOwner, Observer {
-//        it?.let {
-//            adapter.submitList(it)
-//        }
-//    })
 
 
     private companion object {

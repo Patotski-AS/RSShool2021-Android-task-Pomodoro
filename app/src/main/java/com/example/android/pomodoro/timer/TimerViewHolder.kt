@@ -1,29 +1,23 @@
 package com.example.android.pomodoro.timer
 
 import android.graphics.drawable.AnimationDrawable
-import android.os.CountDownTimer
 import android.util.Log
 import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android.pomodoro.databinding.TimerItemBinding
 import com.example.android.pomodoro.longTimeToString
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.sql.Time
+import kotlinx.coroutines.*
 
 class TimerViewHolder(
     private val binding: TimerItemBinding,
     private val listener: TimerListener
 ) :
     RecyclerView.ViewHolder(binding.root) {
-
-//    private var countDownTimer: CountDownTimer? = null
+    private var job: Job? = null
 
     fun bind(timer: Timer) {
-        Log.i("MyLog","bind $timer")
-        binding.stopwatchTimer.text = longTimeToString(timer.currentMs)
+        Log.i("MyLog", "bind $timer")
+        binding.stopwatchTimer.text = listener.getCurrentMs(timer.id)?.let { longTimeToString(it) }
         if (timer.isStarted) {
             startTimer(timer)
         } else stopTimer()
@@ -37,18 +31,14 @@ class TimerViewHolder(
     }
 
     private fun startTimer(timer: Timer) {
-//        countDownTimer?.cancel()
-//        countDownTimer = getCountDownTimer(timer)
-//        countDownTimer?.start()
-        listener.update(timer)
+        listener.start(timer)
+        update(timer)
         binding.blinkingIndicator.isInvisible = false
         (binding.blinkingIndicator.background as? AnimationDrawable)?.start()
     }
 
     private fun stopTimer() {
         binding.startStopTimerButton.text = START
-
-//        countDownTimer?.cancel()
 
         binding.blinkingIndicator.isInvisible = true
         (binding.blinkingIndicator.background as? AnimationDrawable)?.stop()
@@ -85,6 +75,21 @@ class TimerViewHolder(
             listener.delete(timer.id)
         }
     }
+
+    private fun update(timer: Timer) {
+        job = CoroutineScope(Dispatchers.Main).launch {
+            while (true) {
+                binding.stopwatchTimer.text = listener.getCurrentMs(timer.id)?.let {
+                    longTimeToString(
+                        it
+                    )
+                }
+                listener.getCurrentMs(timer.id)?.let { updateCustomTimer(it) }
+                delay(INTERVAL)
+            }
+        }
+    }
+
 
 //    private fun getCountDownTimer(timer: Timer): CountDownTimer {
 //
