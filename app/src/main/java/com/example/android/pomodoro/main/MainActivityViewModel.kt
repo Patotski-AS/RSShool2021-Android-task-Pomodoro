@@ -13,13 +13,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivityViewModel : ViewModel() {
+class MainActivityViewModel : ViewModel(), TimerListener {
 
     val timers = ArrayList<Timer>()
     val timersLiveData = MutableLiveData<MutableList<Timer>>()
 
     private var nextId = 0
-    var currentTime = 0L
+    private var currentTime = 0L
     private var startTime = 0L
     private var finishTime = 0L
     private var job: Job? = null
@@ -37,27 +37,42 @@ class MainActivityViewModel : ViewModel() {
         }
     }
 
-    fun delete(id: Int) {
+    override fun delete(id: Int) {
         timers.remove(timers.find { it.id == id })
         timersLiveData.value = timers
     }
 
 
-    private fun update(timer: Timer) {
+    override fun update(timer: Timer) {
         val index = timers.indexOf(timers.find { it.id == timer.id })
         timers[index].isStarted = timer.isStarted
         timers[index].currentMs = timer.startMs
-        Log.i("MyLog", "update $timers index = $index, timer.isStarted= ${timer.isStarted} ,timer.startMs = ${timer.startMs}   ")
+        Log.i(
+            "MyLog",
+            "update $timers index = $index, timer.isStarted= ${timer.isStarted} ,timer.startMs = ${timer.startMs}   "
+        )
         timersLiveData.value = timers
     }
 
+    override fun getCurrentMs(id: Int): Long? {
+        return currentTime
+    }
 
-    fun start(timer: Timer) {
+
+    override fun start(timer: Timer) {
+        timers.map { if (it.isStarted) it.isStarted = false }
         timers[timers.indexOf(timers.find { it.id == timer.id })].apply {
             isStarted = true
         }
         finishTime = System.currentTimeMillis() + timer.currentMs
         createCounter(timer)
+    }
+
+    override fun stop(id: Int, currentMs: Long) {
+        val index = timers.indexOf(timers.find { it.id == id })
+        timers[index].currentMs = currentMs
+        timers[index].isStarted = false
+        timersLiveData.value = timers
     }
 
     private fun createCounter(timer: Timer) {
@@ -67,6 +82,7 @@ class MainActivityViewModel : ViewModel() {
             while (timer.isStarted) {
                 timers[index].isStarted = timer.isStarted
                 timers[index].currentMs = finishTime - System.currentTimeMillis()
+                if (timers[index].currentMs <=0L) job?.cancel()
                 timersLiveData.value = timers
                 Log.i("MyLog", "createCounter timers = $timers ")
                 delay(INTERVAL)
@@ -97,8 +113,6 @@ class MainActivityViewModel : ViewModel() {
 //        timerAdapter.notifyItemChanged(timerAdapter.currentList.indexOf(timer))
 //        Log.i("MyLog", "fun update $timers ")
 //    }
-
-
 
 
     private companion object {

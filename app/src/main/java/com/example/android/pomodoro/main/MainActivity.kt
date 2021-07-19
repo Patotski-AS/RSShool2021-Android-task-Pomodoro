@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(),TimerListener {
     }
 
     override fun stop(id: Int, currentMs: Long) {
-        TODO("Not yet implemented")
+        viewModel.stop(id, currentMs)
     }
 
     override fun delete(id: Int) {

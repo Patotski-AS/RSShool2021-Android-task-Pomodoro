@@ -3,6 +3,7 @@ package com.example.android.pomodoro.timer
 import android.graphics.drawable.AnimationDrawable
 import android.util.Log
 import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android.pomodoro.databinding.TimerItemBinding
 import com.example.android.pomodoro.longTimeToString
@@ -16,22 +17,28 @@ class TimerViewHolder(
     private var job: Job? = null
 
     fun bind(timer: Timer) {
+
         Log.i("MyLog", "bind $timer")
-        binding.stopwatchTimer.text = listener.getCurrentMs(timer.id)?.let { longTimeToString(it) }
-        if (timer.isStarted) {
-            startTimer(timer)
-        } else stopTimer()
+
+        binding.stopwatchTimer.text = longTimeToString(timer.currentMs)
 
         if (timer.currentMs != 0L) {
             binding.customTimer.setPeriod(timer.startMs)
             updateCustomTimer(timer.currentMs)
-        } else finish()
+        }
+
+        if (timer.isStarted) {
+            startTimer(timer)
+        } else {
+            job?.cancel()
+            stopTimer()
+        }
 
         initButtonsListeners(timer)
     }
 
     private fun startTimer(timer: Timer) {
-        listener.start(timer)
+        binding.startStopTimerButton.text = STOP
         update(timer)
         binding.blinkingIndicator.isInvisible = false
         (binding.blinkingIndicator.background as? AnimationDrawable)?.start()
@@ -42,14 +49,6 @@ class TimerViewHolder(
 
         binding.blinkingIndicator.isInvisible = true
         (binding.blinkingIndicator.background as? AnimationDrawable)?.stop()
-    }
-
-
-    private fun finish() {
-        binding.startStopTimerButton.isInvisible = true
-        binding.blinkingIndicator.isInvisible = true
-        (binding.blinkingIndicator.background as? AnimationDrawable)?.stop()
-        binding.stopwatchTimer.text = START_TIME
     }
 
     private fun updateCustomTimer(time: Long) {
@@ -63,6 +62,7 @@ class TimerViewHolder(
         binding.startStopTimerButton.setOnClickListener {
             if (timer.isStarted) {
                 binding.startStopTimerButton.text = START
+                stopTimer()
                 listener.stop(timer.id, timer.currentMs)
             } else {
                 listener.start(timer)
@@ -78,39 +78,24 @@ class TimerViewHolder(
 
     private fun update(timer: Timer) {
         job = CoroutineScope(Dispatchers.Main).launch {
-            while (true) {
-                binding.stopwatchTimer.text = listener.getCurrentMs(timer.id)?.let {
-                    longTimeToString(
-                        it
-                    )
+            while (timer.isStarted) {
+                val currentTime = listener.getCurrentMs(timer.id)
+                if (currentTime != null) {
+                    if (currentTime <= 0) {
+                        binding.stopwatchTimer.text = START_TIME
+                        binding.blinkingIndicator.isInvisible = true
+                        (binding.blinkingIndicator.background as? AnimationDrawable)?.stop()
+                        binding.startStopTimerButton.isVisible = true
+                        job?.cancel()
+                    }
+                    binding.stopwatchTimer.text = longTimeToString(currentTime)
+                    updateCustomTimer(currentTime)
                 }
-                listener.getCurrentMs(timer.id)?.let { updateCustomTimer(it) }
                 delay(INTERVAL)
             }
+            stopTimer()
         }
     }
-
-
-//    private fun getCountDownTimer(timer: Timer): CountDownTimer {
-//
-//        return object : CountDownTimer(timer.startMs, INTERVAL) {
-//
-//            override fun onTick(millisUntilFinished: Long) {
-//                if (timer.isStarted) {
-//                    timer.currentMs -= INTERVAL
-//                    binding.stopwatchTimer.text = longTimeToString(timer.currentMs)
-//                    updateCustomTimer(timer.currentMs)
-//                } else {
-//                    stopTimer()
-//                }
-//            }
-//
-//            override fun onFinish() {
-//                finish()
-//            }
-//        }
-//    }
-
 
     private companion object {
         private const val START_TIME = "00:00:00"
