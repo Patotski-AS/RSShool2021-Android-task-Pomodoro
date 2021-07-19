@@ -65,9 +65,10 @@ class MainActivityViewModel : ViewModel() {
 
         job = viewModelScope.launch(Dispatchers.Main) {
             while (timer.isStarted) {
-                currentTime = finishTime - System.currentTimeMillis()
-                update(updateTimer)
-                Log.i("MyLog", "createCounter ${timersLiveData.value} , currentTime = $currentTime,  updateTimer = $updateTimer   ")
+                timers[index].isStarted = timer.isStarted
+                timers[index].currentMs = finishTime - System.currentTimeMillis()
+                timersLiveData.value = timers
+                Log.i("MyLog", "createCounter timers = $timers ")
                 delay(INTERVAL)
             }
         }
