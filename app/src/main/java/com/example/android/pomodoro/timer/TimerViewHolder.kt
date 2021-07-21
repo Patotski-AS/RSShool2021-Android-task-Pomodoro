@@ -25,9 +25,11 @@ class TimerViewHolder(
     private var countDownTimer: CountDownTimer? = null
 
     fun bind(timer: Timer) {
-        Log.i("MyLog", "bind timer=$timer ")
 
         binding.stopwatchTimer.text = longTimeToString(timer.remainingMS)
+
+        binding.layout.setBackgroundColor(Color.TRANSPARENT)
+        binding.startStopTimerButton.isInvisible = false
 
         if (timer.remainingMS <= 0L) finish(timer)
         else {
