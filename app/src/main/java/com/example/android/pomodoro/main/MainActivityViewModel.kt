@@ -1,9 +1,7 @@
 package com.example.android.pomodoro.main
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.android.pomodoro.timer.Timer
 import com.example.android.pomodoro.timer.TimerListener
 import kotlinx.coroutines.Dispatchers
@@ -11,10 +9,32 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivityViewModel : ViewModel(), TimerListener {
+class MainActivityViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(),
+    TimerListener {
 
-    val timers = ArrayList<Timer>()
-    val timersLiveData = MutableLiveData<MutableList<Timer>>()
+    var timers = ArrayList<Timer>()
+    var timersLiveData = MutableLiveData<MutableList<Timer>>()
+
+    init {
+        getSaveState()
+    }
+
+
+    fun setSaveState() {
+        savedStateHandle.set("TIMERS", timers)
+    }
+
+    private fun getSaveState() {
+        Log.i("MyLog", "getSaveState timers = ${savedStateHandle.get<ArrayList<Timer>>("TIMERS")} ")
+
+        if (savedStateHandle.get<ArrayList<Timer>>("TIMERS") != null){
+            timers = savedStateHandle.get<ArrayList<Timer>>("TIMERS")!!
+            timersLiveData.value = timers
+            Log.i("MyLog", "getSaveState timers = $timers ")
+
+        }
+    }
+
 
     private var nextId = 0
     private var currentTime = 0L
@@ -39,7 +59,11 @@ class MainActivityViewModel : ViewModel(), TimerListener {
     }
 
     override fun getCurrentMs(id: Int): Long? {
-        return currentTime
+        return timers.find { it.id == id }?.currentMs
+    }
+
+    fun getFinishTime(): Long {
+        return finishTime
     }
 
     override fun start(timer: Timer) {
@@ -58,14 +82,26 @@ class MainActivityViewModel : ViewModel(), TimerListener {
         timersLiveData.value = timers
     }
 
+    fun getIsStarted(): Boolean {
+        var isStarted = false
+        timers.forEach {
+            if (it.isStarted) {
+                isStarted = true
+                return isStarted
+            }
+        }
+        return isStarted
+    }
+
     private fun createCounter(timer: Timer) {
         val index = timers.indexOf(timers.find { it.id == timer.id })
 
         job = viewModelScope.launch(Dispatchers.Main) {
             while (timer.isStarted) {
+                currentTime = finishTime - System.currentTimeMillis()
                 timers[index].isStarted = timer.isStarted
-                timers[index].currentMs = finishTime - System.currentTimeMillis()
-                if (timers[index].currentMs <=0L) job?.cancel()
+                timers[index].currentMs = currentTime
+                if (timers[index].currentMs <= 0L) job?.cancel()
                 timersLiveData.value = timers
                 delay(INTERVAL)
             }
@@ -77,3 +113,4 @@ class MainActivityViewModel : ViewModel(), TimerListener {
     }
 
 }
+

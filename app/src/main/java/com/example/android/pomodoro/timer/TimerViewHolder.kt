@@ -4,8 +4,8 @@ import android.graphics.drawable.AnimationDrawable
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.example.android.pomodoro.*
 import com.example.android.pomodoro.databinding.TimerItemBinding
-import com.example.android.pomodoro.longTimeToString
 import kotlinx.coroutines.*
 
 class TimerViewHolder(
@@ -66,7 +66,6 @@ class TimerViewHolder(
                 binding.startStopTimerButton.text = STOP
             }
         }
-
         binding.deleteButton.setOnClickListener {
             listener.delete(timer.id)
         }
@@ -93,12 +92,4 @@ class TimerViewHolder(
             stopTimer()
         }
     }
-
-    private companion object {
-        private const val START_TIME = "00:00:00"
-        private const val INTERVAL = 1000L
-        private const val START = "START"
-        private const val STOP = "STOP"
-    }
-
 }
