@@ -73,7 +73,6 @@ class ForegroundService : Service() {
     }
 
     private fun continueTimer(finishTime: Long) {
-
         job = GlobalScope.launch(Dispatchers.Main) {
             while (true) {
                 notificationManager?.notify(

@@ -3,9 +3,7 @@ package com.example.android.pomodoro.timer
 import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
 import android.os.CountDownTimer
-import android.util.Log
 import androidx.core.view.isInvisible
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android.pomodoro.INTERVAL
 import com.example.android.pomodoro.START_TIME

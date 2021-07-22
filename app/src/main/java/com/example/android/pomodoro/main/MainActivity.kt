@@ -3,15 +3,14 @@ package com.example.android.pomodoro.main
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.android.pomodoro.COMMAND_ID
-import com.example.android.pomodoro.COMMAND_START
-import com.example.android.pomodoro.COMMAND_STOP
-import com.example.android.pomodoro.STARTED_TIMER_TIME_MS
+import com.example.android.pomodoro.*
 import com.example.android.pomodoro.databinding.ActivityMainBinding
 import com.example.android.pomodoro.service.ForegroundService
 import com.example.android.pomodoro.timer.Timer
@@ -41,6 +40,18 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
             val time = binding.startTime.text.toString()
             addNewTimer(time)
         }
+    }
+
+    override fun onBackPressed() {
+        AlertDialog.Builder(this,R.style.AlertDialog).apply {
+            setTitle("Quit the application?")
+            setPositiveButton("Yes") { _, _ ->
+                super.onBackPressed()
+            }
+            setNegativeButton("No"){_, _ ->
+            }
+            setCancelable(true)
+        }.create().show()
     }
 
     private fun addNewTimer(startTime: String) {

@@ -1,12 +1,9 @@
 package com.example.android.pomodoro.timer
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import com.example.android.pomodoro.R
 import com.example.android.pomodoro.databinding.TimerItemBinding
 
 class TimerAdapter(

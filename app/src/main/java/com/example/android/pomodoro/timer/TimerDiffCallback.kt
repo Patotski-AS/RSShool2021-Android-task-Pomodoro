@@ -3,7 +3,7 @@ package com.example.android.pomodoro.timer
 import androidx.annotation.Nullable
 import androidx.recyclerview.widget.DiffUtil
 
-class TimerDiffCallback() :
+class TimerDiffCallback :
     DiffUtil.ItemCallback<Timer>() {
 
     override fun areItemsTheSame(oldItem: Timer, newItem: Timer): Boolean {
