@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -28,7 +29,13 @@ class ForegroundService : Service() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(getPendingIntent())
             .setSilent(true)
-            .setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
+            .setLargeIcon(
+                BitmapFactory.decodeResource(
+                    resources,
+                    R.mipmap.ic_launcher_foreground_pomodoro
+                )
+            )
+            .setSmallIcon(R.mipmap.ic_launcher_foreground_pomodoro)
     }
 
     override fun onCreate() {
@@ -115,7 +122,6 @@ class ForegroundService : Service() {
     }
 
     private fun getNotification(content: String) = builder.setContentText(content).build()
-
 
     private fun createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

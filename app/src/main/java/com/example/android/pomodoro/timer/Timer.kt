@@ -6,4 +6,5 @@ data class Timer(
     var isStarted: Boolean,
     var remainingMS: Long = startMs,
     var finishTime: Long = 0L,
+    var isWorked:Boolean = false
 )

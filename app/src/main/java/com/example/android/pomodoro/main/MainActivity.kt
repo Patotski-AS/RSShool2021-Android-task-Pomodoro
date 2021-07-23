@@ -3,7 +3,6 @@ package com.example.android.pomodoro.main
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -31,24 +30,27 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.recycler.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = timerAdapter
-        }
+        binding.apply {
 
-        binding.addNewTimerButton.setOnClickListener {
-            val time = binding.startTime.text.toString()
-            addNewTimer(time)
+            recycler.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = timerAdapter
+            }
+
+            addNewTimerButton.setOnClickListener {
+                val time = binding.startTime.text.toString()
+                addNewTimer(time)
+            }
         }
     }
 
     override fun onBackPressed() {
-        AlertDialog.Builder(this,R.style.AlertDialog).apply {
+        AlertDialog.Builder(this, R.style.AlertDialog).apply {
             setTitle("Quit the application?")
             setPositiveButton("Yes") { _, _ ->
                 super.onBackPressed()
             }
-            setNegativeButton("No"){_, _ ->
+            setNegativeButton("No") { _, _ ->
             }
             setCancelable(true)
         }.create().show()
@@ -77,7 +79,8 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
     override fun stop(id: Int, currentMs: Long) {
         val index = timers.indexOf(timers.find { it.id == id })
         timers[index].run {
-            remainingMS = finishTime - System.currentTimeMillis()
+            remainingMS = if (isWorked) startMs
+            else finishTime - System.currentTimeMillis()
             isStarted = false
         }
         currentFinishTime = 0L
@@ -89,9 +92,6 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
         timerAdapter.submitList(timers.toList())
     }
 
-    override fun update(time: Long) {
-        currentFinishTime = time
-    }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onAppBackgrounded() {

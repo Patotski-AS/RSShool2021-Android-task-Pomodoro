@@ -6,10 +6,8 @@ import android.os.CountDownTimer
 import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android.pomodoro.INTERVAL
-import com.example.android.pomodoro.START_TIME
 import com.example.android.pomodoro.databinding.TimerItemBinding
 import com.example.android.pomodoro.longTimeToString
-import com.example.android.pomodoro.stringTimeToLong
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -29,7 +27,7 @@ class TimerViewHolder(
 
         isVisible(true)
 
-        if (timer.remainingMS <= 0L) finish(timer)
+        if (timer.isWorked) finish(timer)
         else {
             binding.customTimer.setPeriod(timer.startMs)
             updateCustomTimer(timer.remainingMS)
@@ -43,6 +41,11 @@ class TimerViewHolder(
 
     private fun startTimer(timer: Timer) {
         binding.startStopTimerButton.text = STOP
+
+        if (timer.isWorked) {
+            timer.isWorked = false
+            isVisible(true)
+        }
 
         countDownTimer?.cancel()
         countDownTimer = getCountDownTimer(timer)
@@ -69,31 +72,39 @@ class TimerViewHolder(
                 if (timer.isStarted) {
                     if (timer.remainingMS <= 0L) {
                         onFinish()
+                    } else {
+                        timer.remainingMS = timer.finishTime - System.currentTimeMillis()
+                        binding.stopwatchTimer.text = longTimeToString(timer.remainingMS)
+                        updateCustomTimer(timer.remainingMS)
                     }
-                    timer.remainingMS = timer.finishTime - System.currentTimeMillis()
-                    binding.stopwatchTimer.text = longTimeToString(timer.remainingMS)
-                    updateCustomTimer(timer.remainingMS)
                 } else {
                     stopTimer()
                 }
             }
 
             override fun onFinish() {
-                timer.isStarted = false
                 finish(timer)
             }
         }
     }
 
     private fun finish(timer: Timer) {
-        listener.stop(timer.id, stringTimeToLong(START_TIME))
-        timer.remainingMS = stringTimeToLong(START_TIME)
         countDownTimer?.cancel()
-        binding.stopwatchTimer.text = START_TIME
 
+        binding.run {
+            startStopTimerButton.text = START
+            stopwatchTimer.text = longTimeToString(timer.startMs)
+            blinkingIndicator.isInvisible = true
+            (blinkingIndicator.background as? AnimationDrawable)?.stop()
+        }
+
+        timer.run {
+            remainingMS = timer.startMs
+            isStarted = false
+            isWorked = true
+        }
+        listener.stop(timer.id, timer.startMs)
         isVisible(false)
-        binding.blinkingIndicator.isInvisible = true
-        (binding.blinkingIndicator.background as? AnimationDrawable)?.stop()
     }
 
     private fun updateCustomTimer(time: Long) {
@@ -109,13 +120,13 @@ class TimerViewHolder(
                 binding.startStopTimerButton.text = START
                 listener.stop(timer.id, timer.remainingMS)
             } else {
-                listener.start(timer.id)
                 startTimer(timer)
-                binding.startStopTimerButton.text = STOP
+                listener.start(timer.id)
             }
         }
 
         binding.deleteButton.setOnClickListener {
+            binding.startStopTimerButton.isClickable = false
             listener.delete(timer.id)
         }
     }
@@ -126,9 +137,7 @@ class TimerViewHolder(
         } else {
             binding.layout.setBackgroundColor(Color.RED)
         }
-        binding.startStopTimerButton.isInvisible = !visible
         binding.customTimer.isInvisible = !visible
-
     }
 
     private companion object {

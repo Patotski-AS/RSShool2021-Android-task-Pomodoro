@@ -1,6 +1,5 @@
 package com.example.android.pomodoro.timer
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
@@ -18,7 +17,6 @@ class TimerAdapter(
         return TimerViewHolder(binding,listener)
     }
 
-    @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: TimerViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
