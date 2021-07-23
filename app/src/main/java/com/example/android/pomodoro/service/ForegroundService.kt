@@ -7,6 +7,8 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.media.Ringtone
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -19,6 +21,7 @@ class ForegroundService : Service() {
     private var isServiceStarted = false
     private var notificationManager: NotificationManager? = null
     private var job: Job? = null
+    private var ringtone: Ringtone? = null
 
     private val builder by lazy {
         NotificationCompat.Builder(this, CHANNEL_ID)
@@ -40,6 +43,12 @@ class ForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        ringtone = RingtoneManager
+            .getRingtone(
+                applicationContext,
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            )
+
         notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
     }
@@ -56,8 +65,8 @@ class ForegroundService : Service() {
     private fun processCommand(intent: Intent?) {
         when (intent?.extras?.getString(COMMAND_ID) ?: INVALID) {
             COMMAND_START -> {
-                val startTime = intent?.extras?.getLong(STARTED_TIMER_TIME_MS) ?: return
-                commandStart(startTime)
+                val finishTime = intent?.extras?.getLong(STARTED_TIMER_TIME_MS) ?: return
+                commandStart(finishTime)
             }
             COMMAND_STOP -> commandStop()
             INVALID -> return
@@ -69,7 +78,7 @@ class ForegroundService : Service() {
             return
         }
         try {
-            if (finishTime != 0L) {
+            if (finishTime > 0L) {
                 moveToStartedState()
                 startForegroundAndShowNotification()
                 continueTimer(finishTime)
@@ -81,18 +90,18 @@ class ForegroundService : Service() {
 
     private fun continueTimer(finishTime: Long) {
         job = GlobalScope.launch(Dispatchers.Main) {
-            while (true) {
+            var currentTime = finishTime - System.currentTimeMillis()
+            while (currentTime >= 0) {
                 notificationManager?.notify(
                     NOTIFICATION_ID,
-                    getNotification(
-                        longTimeToString(finishTime - System.currentTimeMillis())
-                    )
+                    getNotification(longTimeToString(currentTime))
                 )
+                currentTime = finishTime - System.currentTimeMillis()
                 delay(INTERVAL)
             }
+            ringtone?.play()
         }
     }
-
 
     private fun commandStop() {
         if (!isServiceStarted) {
@@ -100,6 +109,7 @@ class ForegroundService : Service() {
         }
         try {
             job?.cancel()
+            ringtone?.stop()
             stopForeground(true)
             stopSelf()
         } finally {
