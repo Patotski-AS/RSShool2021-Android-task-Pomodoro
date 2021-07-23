@@ -107,4 +107,9 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
         stopIntent.putExtra(COMMAND_ID, COMMAND_STOP)
         startService(stopIntent)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        onAppForegrounded()
+    }
 }
