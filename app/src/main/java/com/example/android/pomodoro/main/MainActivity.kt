@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
         AlertDialog.Builder(this, R.style.AlertDialog).apply {
             setTitle("Quit the application?")
             setPositiveButton("Yes") { _, _ ->
+                currentFinishTime = 0L
                 super.onBackPressed()
             }
             setNegativeButton("No") { _, _ ->
@@ -91,7 +92,6 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
         timers.remove(timers.find { it.id == id })
         timerAdapter.submitList(timers.toList())
     }
-
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onAppBackgrounded() {
