@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
     }
 
     private fun addNewTimer(startTime: String) {
-        if (startTime != "") {
+        if (startTime != "" && startTime.toLong() > 0L) {
             timers.add(Timer(nextId++, startTime.toLong() * 1000 * 60, false))
             timerAdapter.submitList(timers.toList())
         }
