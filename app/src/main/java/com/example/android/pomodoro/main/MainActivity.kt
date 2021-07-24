@@ -81,15 +81,4 @@ class MainActivity : AppCompatActivity(), TimerListener, LifecycleObserver {
         return viewModel.timers.find { it.id == id }?.currentMs
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        viewModel.setSaveState()
-        Log.i("MyLog", "onSaveInstanceState")
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        val x = savedInstanceState.getInt("INT")
-        Log.i("MyLog", "onRestoreInstanceState  x = $x")
-    }
 }

@@ -28,9 +28,9 @@ class ForegroundService : Service() {
             .setGroupSummary(false)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-//            .setContentIntent(getPendingIntent())
+            .setContentIntent(getPendingIntent())
             .setSilent(true)
-            .setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
+            .setSmallIcon(android.R.drawable.ic_popup_reminder)
     }
 
     override fun onCreate() {
@@ -74,11 +74,12 @@ class ForegroundService : Service() {
 
     private fun continueTimer(finishTime: Long) {
         job = GlobalScope.launch(Dispatchers.Main) {
-            while (true) {
+            val currentTime = finishTime - System.currentTimeMillis()
+            while (currentTime > 0) {
                 notificationManager?.notify(
                     NOTIFICATION_ID,
                     getNotification(
-                        longTimeToString(finishTime - System.currentTimeMillis()).drop(3)
+                        longTimeToString(currentTime)
                     )
                 )
                 delay(INTERVAL)
@@ -90,7 +91,6 @@ class ForegroundService : Service() {
         if (!isServiceStarted) {
             return
         }
-        Log.i("TAG", "commandStop()")
         try {
             job?.cancel()
             stopForeground(true)
@@ -102,10 +102,8 @@ class ForegroundService : Service() {
 
     private fun moveToStartedState() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Log.d("TAG", "moveToStartedState(): Running on Android O or higher")
             startForegroundService(Intent(this, ForegroundService::class.java))
         } else {
-            Log.d("TAG", "moveToStartedState(): Running on Android N or lower")
             startService(Intent(this, ForegroundService::class.java))
         }
     }
@@ -132,7 +130,7 @@ class ForegroundService : Service() {
 
     private fun getPendingIntent(): PendingIntent? {
         val resultIntent = Intent(this, MainActivity::class.java)
-        resultIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        resultIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         return PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_ONE_SHOT)
     }
 
